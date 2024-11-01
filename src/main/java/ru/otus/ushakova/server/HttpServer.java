@@ -3,6 +3,8 @@ package ru.otus.ushakova.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class HttpServer {
     private int port;
@@ -11,10 +13,10 @@ public class HttpServer {
     public HttpServer(int port) {
         this.port = port;
         this.dispatcher = new Dispatcher();
-
     }
 
     public void start() {
+        ExecutorService executorService = Executors.newFixedThreadPool(4);
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Сервер запущен на порту: " + port);
             while (true) {
@@ -25,18 +27,19 @@ public class HttpServer {
                     String rawRequest = new String(buffer, 0, n);
                     HttpRequest request = new HttpRequest(rawRequest);
                     request.info(true);
-                    new Thread(() ->{
+                    executorService.execute(() -> {
                         try {
                             dispatcher.execute(request, socket.getOutputStream());
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
-                    }).start();
+                    });
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        executorService.shutdown();
     }
 
 }
