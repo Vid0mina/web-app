@@ -20,7 +20,8 @@ public class HttpServer {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Сервер запущен на порту: " + port);
             while (true) {
-                try (Socket socket = serverSocket.accept()) {
+                try {
+                    Socket socket = serverSocket.accept();
                     byte[] buffer = new byte[8192];
                     int n = socket.getInputStream().read(buffer);
                     if (n < 1) continue;
@@ -34,6 +35,8 @@ public class HttpServer {
                             throw new RuntimeException(e);
                         }
                     });
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
         } catch (IOException e) {

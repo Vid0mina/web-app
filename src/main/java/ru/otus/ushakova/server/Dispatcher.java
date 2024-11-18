@@ -1,5 +1,6 @@
 package ru.otus.ushakova.server;
 
+import ru.otus.ushakova.server.app.item.ItemsRepository;
 import ru.otus.ushakova.server.processors.*;
 
 import java.io.IOException;
@@ -13,10 +14,15 @@ public class Dispatcher {
     private RequestProcessor defaultInternalServerErrorProcessor;
     private RequestProcessor defaultBadRequestProcessor;
 
+    private ItemsRepository itemsRepository;
+
     public Dispatcher() {
+        this.itemsRepository = new ItemsRepository();
         this.processors = new HashMap<>();
-        this.processors.put("/", new HelloWorldProcessor());
-        this.processors.put("/calculator", new CalculatorProcessor());
+        this.processors.put("GET /", new HelloWorldProcessor());
+        this.processors.put("GET /calculator", new CalculatorProcessor());
+        this.processors.put("GET /items", new GetAllItemsProcessor(itemsRepository));
+        this.processors.put("POST /items", new CreateNewItemsProcessor(itemsRepository));
         this.defaultNotFoundProcessor = new DefaultNotFoundProcessor();
         this.defaultInternalServerErrorProcessor = new DefaultInternalServerErrorProcessor();
         this.defaultBadRequestProcessor = new DefaultBadRequestProcessor();
@@ -24,26 +30,17 @@ public class Dispatcher {
 
     public void execute(HttpRequest request, OutputStream out) throws IOException {
         try {
-            if (!processors.containsKey(request.getUri())) {
+            if (!processors.containsKey(request.getRoutingKey())) {
                 defaultNotFoundProcessor.execute(request, out);
                 return;
             }
-            processors.get(request.getUri()).execute(request, out);
+            processors.get(request.getRoutingKey()).execute(request, out);
         } catch (BadRequestException e) {
             request.setException(e);
-            try {
-                defaultBadRequestProcessor.execute(request, out);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+            defaultBadRequestProcessor.execute(request, out);
         } catch (Exception e) {
             e.printStackTrace();
-            try {
-                defaultInternalServerErrorProcessor.execute(request, out);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+            defaultInternalServerErrorProcessor.execute(request, out);
         }
     }
-
 }

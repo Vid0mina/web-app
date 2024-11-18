@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 
 public class CalculatorProcessor implements RequestProcessor {
     @Override
-    public synchronized void execute(HttpRequest request, OutputStream output) throws IOException {
+    public void execute(HttpRequest request, OutputStream output) throws IOException {
         if (!request.containsParameter("a")) {
             throw new BadRequestException("Parameter 'a' is missing");
         }
@@ -36,5 +36,4 @@ public class CalculatorProcessor implements RequestProcessor {
                 "<html><body><h1>" + math + "</h1></body></html>";
         output.write(response.getBytes(StandardCharsets.UTF_8));
     }
-
 }

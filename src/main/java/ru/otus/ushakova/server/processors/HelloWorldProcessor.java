@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
 
 public class HelloWorldProcessor implements RequestProcessor {
     @Override
-    public synchronized void execute(HttpRequest request, OutputStream output) throws IOException {
+    public void execute(HttpRequest request, OutputStream output) throws IOException {
         String response = "" +
                 "HTTP/1.1 200 OK\r\n" +
                 "Content-Type: text/html\r\n" +
