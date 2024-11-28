@@ -1,5 +1,6 @@
 package ru.otus.ushakova.server;
 
+import lombok.extern.slf4j.Slf4j;
 import ru.otus.ushakova.server.app.item.ItemsRepository;
 import ru.otus.ushakova.server.processors.*;
 
@@ -8,11 +9,14 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class Dispatcher {
+
     private Map<String, RequestProcessor> processors;
     private RequestProcessor defaultNotFoundProcessor;
     private RequestProcessor defaultInternalServerErrorProcessor;
     private RequestProcessor defaultBadRequestProcessor;
+    private final RequestProcessor defaultNotAllowedProcessor;
 
     private ItemsRepository itemsRepository;
 
@@ -26,6 +30,7 @@ public class Dispatcher {
         this.defaultNotFoundProcessor = new DefaultNotFoundProcessor();
         this.defaultInternalServerErrorProcessor = new DefaultInternalServerErrorProcessor();
         this.defaultBadRequestProcessor = new DefaultBadRequestProcessor();
+        this.defaultNotAllowedProcessor = new DefaultNotAllowedProcessor();
     }
 
     public void execute(HttpRequest request, OutputStream out) throws IOException {
@@ -34,13 +39,19 @@ public class Dispatcher {
                 defaultNotFoundProcessor.execute(request, out);
                 return;
             }
+            if (request.getRoutingKey().contains("POST")) {
+                defaultNotAllowedProcessor.execute(request, out);
+                return;
+            }
             processors.get(request.getRoutingKey()).execute(request, out);
         } catch (BadRequestException e) {
+            log.error(e.getMessage());
             request.setException(e);
             defaultBadRequestProcessor.execute(request, out);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             defaultInternalServerErrorProcessor.execute(request, out);
         }
     }
+
 }

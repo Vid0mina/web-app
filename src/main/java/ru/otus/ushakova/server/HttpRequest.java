@@ -1,40 +1,34 @@
 package ru.otus.ushakova.server;
 
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class HttpRequest {
-    private String rawRequest;
+
+    private final String rawRequest;
     private HttpMethod method;
+    @Getter
     private String uri;
     private Map<String, String> parameters;
+    @Getter
     private String body;
+    @Getter
+    @Setter
     private Exception exception;
-
-    public Exception getException() {
-        return exception;
-    }
-
-    public void setException(Exception exception) {
-        this.exception = exception;
-    }
-
-    public String getUri() {
-        return uri;
-    }
 
     public String getRoutingKey() {
         return method + " " + uri;
     }
 
-    public String getBody() {
-        return body;
-    }
-
-    public HttpRequest(String rawRequest) {
+    public HttpRequest(String rawRequest) throws IOException {
         this.rawRequest = rawRequest;
         this.parse();
     }
@@ -47,9 +41,20 @@ public class HttpRequest {
         return parameters.containsKey(key);
     }
 
+    public static synchronized void getHeader(@NonNull String rawRequest) throws IOException {
+        Map<String, String> headersMap = new HashMap<>();
+        String[] headers = rawRequest.split("\r\n");
+        log.info("Request Array = {}", Arrays.toString(Arrays.stream(headers).toArray()));
+        for (var i = 1; i < headers.length; i++) {
+            String[] value = headers[i].split(":");
+            headersMap.put(value[0], value[1]);
+        }
+        log.info("\nHeaders Result Map = {}", headersMap);
+    }
+
     private void parse() {
-        int startIndex = rawRequest.indexOf(' ');
-        int endIndex = rawRequest.indexOf(' ', startIndex + 1);
+        var startIndex = rawRequest.indexOf(' ');
+        var endIndex = rawRequest.indexOf(' ', startIndex + 1);
         uri = rawRequest.substring(startIndex + 1, endIndex);
         method = HttpMethod.valueOf(rawRequest.substring(0, startIndex));
         parameters = new HashMap<>();
@@ -69,11 +74,9 @@ public class HttpRequest {
 
     public void info(boolean debug) {
         if (debug) {
-            System.out.println(rawRequest);
+            log.info(rawRequest);
         }
-        System.out.println("Method: " + method);
-        System.out.println("URI: " + uri);
-        System.out.println("Parameters: " + parameters);
-        System.out.println("Body: "  + body);
+        log.info("Method: {}\nURI: {}\nParameters: {}\nBody: {}", method, uri, parameters, body);
     }
+
 }

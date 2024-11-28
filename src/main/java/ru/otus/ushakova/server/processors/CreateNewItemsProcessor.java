@@ -21,11 +21,12 @@ public class CreateNewItemsProcessor implements RequestProcessor {
         Gson gson = new Gson();
         Item item = itemsRepository.save(gson.fromJson(request.getBody(), Item.class));
 
-        String response = "" +
+        var response = "" +
                 "HTTP/1.1 201 Created\r\n" +
                 "Content-Type: application/json\r\n" +
                 "\r\n" +
                 gson.toJson(item);
         output.write(response.getBytes(StandardCharsets.UTF_8));
     }
+
 }

@@ -1,42 +1,20 @@
 package ru.otus.ushakova.server.app.item;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 
+@Setter
+@Getter
+@RequiredArgsConstructor
+@AllArgsConstructor
 public class Item {
+
     private Long id;
     private String title;
     private BigDecimal price;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public Item() {
-    }
-
-    public Item(Long id, String title, BigDecimal price) {
-        this.id = id;
-        this.title = title;
-        this.price = price;
-    }
 }
