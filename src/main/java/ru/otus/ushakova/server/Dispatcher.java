@@ -45,11 +45,11 @@ public class Dispatcher {
             }
             processors.get(request.getRoutingKey()).execute(request, out);
         } catch (BadRequestException e) {
-            log.error(e.getMessage());
+            log.error("Невозможно обработать некорректный запрос: ",e);
             request.setException(e);
             defaultBadRequestProcessor.execute(request, out);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("Ошибка на стороне сервера: ", e);
             defaultInternalServerErrorProcessor.execute(request, out);
         }
     }

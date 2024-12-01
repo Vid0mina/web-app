@@ -37,13 +37,11 @@ public class HttpServer {
                     request.info(true);
                     dispatcher.execute(request, socket.getOutputStream());
                 } catch (IOException e) {
-                    log.error(e.getMessage());
                     throw new RuntimeException(e);
                 }
             }
 
         } catch (IOException e) {
-            log.error(e.getMessage());
             e.printStackTrace();
         }
         });
