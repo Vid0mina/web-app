@@ -45,7 +45,7 @@ public class Dispatcher {
             }
             processors.get(request.getRoutingKey()).execute(request, out);
         } catch (BadRequestException e) {
-            log.error("Невозможно обработать некорректный запрос: ",e);
+            log.error("Невозможно обработать некорректный запрос: ", e);
             request.setException(e);
             defaultBadRequestProcessor.execute(request, out);
         } catch (Exception e) {
