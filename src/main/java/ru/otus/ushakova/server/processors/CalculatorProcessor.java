@@ -1,5 +1,6 @@
 package ru.otus.ushakova.server.processors;
 
+import lombok.extern.slf4j.Slf4j;
 import ru.otus.ushakova.server.BadRequestException;
 import ru.otus.ushakova.server.HttpRequest;
 
@@ -7,9 +8,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
+@Slf4j
 public class CalculatorProcessor implements RequestProcessor {
+
     @Override
-    public synchronized void execute(HttpRequest request, OutputStream output) throws IOException {
+    public void execute(HttpRequest request, OutputStream output) throws IOException {
         if (!request.containsParameter("a")) {
             throw new BadRequestException("Parameter 'a' is missing");
         }
@@ -28,8 +31,8 @@ public class CalculatorProcessor implements RequestProcessor {
             throw new BadRequestException("Parameter 'b' has incorrect type");
         }
 
-        String math = a + " + " + b + " = " + (a + b);
-        String response = "" +
+        var math = a + " + " + b + " = " + (a + b);
+        var response = "" +
                 "HTTP/1.1 200 OK\r\n" +
                 "Content-Type: text/html\r\n" +
                 "\r\n" +
