@@ -39,7 +39,7 @@ public class Dispatcher {
                 defaultNotFoundProcessor.execute(request, out);
                 return;
             }
-            if (request.getRoutingKey().contains("POST")) {
+            if (processors.containsKey(request.getRoutingKey()) && request.getRoutingKey().equals("POST /items")) {
                 defaultNotAllowedProcessor.execute(request, out);
                 return;
             }
